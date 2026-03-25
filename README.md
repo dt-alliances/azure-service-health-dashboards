@@ -1,6 +1,6 @@
 # Azure Service Health Dashboards for Dynatrace
 
-A collection of Dynatrace dashboards (v21 JSON format) for monitoring Azure health signals across Service Health, Resource Health, Advisor Recommendations, and Security alerts.
+A collection of Dynatrace dashboards for monitoring Azure health signals across Service Health, Resource Health, Advisor Recommendations, and Security alerts.
 
 These dashboards query Azure Activity Log data ingested into Dynatrace via the Azure log forwarder, using `log.source` to filter each category.
 
