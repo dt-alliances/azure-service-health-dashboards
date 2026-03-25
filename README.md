@@ -130,7 +130,8 @@ This enables **Davis AI** to correlate Azure health events with detected problem
 
 ## Prerequisites
 
-- Azure Activity Logs forwarded to Dynatrace (via Azure log forwarder or OpenPipeline)
+These dashboards pull data from [Azure Subscription Activity Logs](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/activity-log?tabs=log-analytics#export-activity-log) ingested into Dynatrace via the [Azure Log Forwarder](https://docs.dynatrace.com/docs/ingest-from/microsoft-azure-services/azure-integrations/set-up-log-forwarder-azure) or the [Azure Native Integration](https://docs.dynatrace.com/docs/ingest-from/microsoft-azure-services/azure-platform/azure-native-integration#how-to-logs).
+
 - Log data available under `log.source` values: `ServiceHealth`, `ResourceHealth`, `Recommendation`, `Security`
 - For entity correlation: Azure VM entities monitored by Dynatrace
 
@@ -141,3 +142,7 @@ This enables **Davis AI** to correlate Azure health events with detected problem
 3. The dashboard will be created with all tiles, variables, and layouts pre-configured
 4. For the **Overview dashboard**, update the markdown link placeholders with actual dashboard IDs after importing all dashboards
 5. For the **Enhanced dashboard**, deploy the `correlation-workflow.json` via **Workflows > Upload/Import**
+
+## FYI
+
+To set up alerts for Service Health or Resource Health events, you can find steps to configure those alerts in Dynatrace here: [Set up monitoring with Azure Alerts](https://docs.dynatrace.com/docs/ingest-from/microsoft-azure-services/azure-integrations/azure-monitoring-guide/set-up-monitoring-with-azure-alerts)
