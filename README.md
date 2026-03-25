@@ -4,6 +4,13 @@ A collection of Dynatrace dashboards for monitoring Azure health signals across 
 
 These dashboards query Azure Activity Log data ingested into Dynatrace via the Azure log forwarder, using `log.source` to filter each category.
 
+## Prerequisites
+
+These dashboards pull data from [Azure Subscription Activity Logs](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/activity-log?tabs=log-analytics#export-activity-log) ingested into Dynatrace via the [Azure Log Forwarder](https://docs.dynatrace.com/docs/ingest-from/microsoft-azure-services/azure-integrations/set-up-log-forwarder-azure) or the [Azure Native Dynatrace Service Integration](https://docs.dynatrace.com/docs/ingest-from/microsoft-azure-services/azure-platform/azure-native-integration#how-to-logs).
+
+- Log data available under `log.source` values: `ServiceHealth`, `ResourceHealth`, `Recommendation`, `Security`
+- For entity correlation: Azure VM entities monitored by Dynatrace
+
 ## Dashboards
 
 ### Overview Dashboard
@@ -127,13 +134,6 @@ A Dynatrace Automation workflow that runs every 6 hours to correlate Azure Servi
 - `source: "Azure Service Health"`, `correlation.type: "azure-health-entity"`
 
 This enables **Davis AI** to correlate Azure health events with detected problems on affected entities.
-
-## Prerequisites
-
-These dashboards pull data from [Azure Subscription Activity Logs](https://learn.microsoft.com/en-us/azure/azure-monitor/platform/activity-log?tabs=log-analytics#export-activity-log) ingested into Dynatrace via the [Azure Log Forwarder](https://docs.dynatrace.com/docs/ingest-from/microsoft-azure-services/azure-integrations/set-up-log-forwarder-azure) or the [Azure Native Integration](https://docs.dynatrace.com/docs/ingest-from/microsoft-azure-services/azure-platform/azure-native-integration#how-to-logs).
-
-- Log data available under `log.source` values: `ServiceHealth`, `ResourceHealth`, `Recommendation`, `Security`
-- For entity correlation: Azure VM entities monitored by Dynatrace
 
 ## Import Instructions
 
