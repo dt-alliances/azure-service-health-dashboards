@@ -1,0 +1,421 @@
+{
+  "version": 21,
+  "variables": [],
+  "annotations": [],
+  "tiles": {
+    "0": {
+      "title": "",
+      "type": "markdown",
+      "content": "## Azure Health Overview\nCentral dashboard with key highlights from all Azure health log sources. Click the links below to drill into each area."
+    },
+    "1": {
+      "title": "",
+      "type": "markdown",
+      "content": "### [Service Health >>](#dashboard;id=SERVICE_HEALTH_DASHBOARD_ID)\nActive incidents, maintenance, and service advisories"
+    },
+    "2": {
+      "title": "Service Health - Total Events",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ServiceHealth\"\n| parse content, \"JSON:parsed\"\n| summarize totalCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Total Events",
+          "recordField": "totalCount",
+          "prefixIcon": ""
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "3": {
+      "title": "Service Health - Active Issues",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ServiceHealth\"\n| parse content, \"JSON:parsed\"\n| filter parsed[resultType] == \"Active\"\n| summarize activeCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Active Issues",
+          "recordField": "activeCount",
+          "prefixIcon": ""
+        },
+        "thresholds": [
+          {
+            "field": "activeCount",
+            "isEnabled": true,
+            "rules": [
+              { "comparator": ">=", "value": 1, "color": "#f5d30a" },
+              { "comparator": ">=", "value": 3, "color": "#dc172a" }
+            ]
+          }
+        ]
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "4": {
+      "title": "Service Health - Incidents",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ServiceHealth\"\n| parse content, \"JSON:parsed\"\n| filter parsed[properties][incidentType] == \"Incident\"\n| summarize incidentCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Incidents",
+          "recordField": "incidentCount",
+          "prefixIcon": ""
+        },
+        "thresholds": [
+          {
+            "field": "incidentCount",
+            "isEnabled": true,
+            "rules": [
+              { "comparator": ">=", "value": 1, "color": "#f5d30a" },
+              { "comparator": ">=", "value": 3, "color": "#dc172a" }
+            ]
+          }
+        ]
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "5": {
+      "title": "Service Health - High Impact (HIR)",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ServiceHealth\"\n| parse content, \"JSON:parsed\"\n| filter parsed[properties][isHIR] == true\n| summarize hirCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "High Impact",
+          "recordField": "hirCount",
+          "prefixIcon": ""
+        },
+        "thresholds": [
+          {
+            "field": "hirCount",
+            "isEnabled": true,
+            "rules": [
+              { "comparator": ">=", "value": 1, "color": "#f5d30a" },
+              { "comparator": ">=", "value": 3, "color": "#dc172a" }
+            ]
+          }
+        ]
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "6": {
+      "title": "",
+      "type": "markdown",
+      "content": "### [Resource Health >>](#dashboard;id=RESOURCE_HEALTH_DASHBOARD_ID)\nResource availability, degradations, and platform-initiated events"
+    },
+    "7": {
+      "title": "Resource Health - Total Events",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ResourceHealth\"\n| parse content, \"JSON:parsed\"\n| summarize totalCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Total Events",
+          "recordField": "totalCount",
+          "prefixIcon": ""
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "8": {
+      "title": "Resource Health - Unavailable",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ResourceHealth\"\n| parse content, \"JSON:parsed\"\n| filter parsed[properties][currentHealthStatus] == \"Unavailable\"\n| summarize unavailableCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Unavailable",
+          "recordField": "unavailableCount",
+          "prefixIcon": ""
+        },
+        "thresholds": [
+          {
+            "field": "unavailableCount",
+            "isEnabled": true,
+            "rules": [
+              { "comparator": ">=", "value": 1, "color": "#dc172a" }
+            ]
+          }
+        ]
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "9": {
+      "title": "Resource Health - Degraded",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ResourceHealth\"\n| parse content, \"JSON:parsed\"\n| filter parsed[properties][currentHealthStatus] == \"Degraded\"\n| summarize degradedCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Degraded",
+          "recordField": "degradedCount",
+          "prefixIcon": ""
+        },
+        "thresholds": [
+          {
+            "field": "degradedCount",
+            "isEnabled": true,
+            "rules": [
+              { "comparator": ">=", "value": 1, "color": "#f5d30a" },
+              { "comparator": ">=", "value": 3, "color": "#dc172a" }
+            ]
+          }
+        ]
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "10": {
+      "title": "Resource Health - Platform Initiated",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ResourceHealth\"\n| parse content, \"JSON:parsed\"\n| filter parsed[properties][cause] == \"PlatformInitiated\"\n| summarize platformCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Platform Initiated",
+          "recordField": "platformCount",
+          "prefixIcon": ""
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "11": {
+      "title": "",
+      "type": "markdown",
+      "content": "### [Recommendations >>](#dashboard;id=RECOMMENDATIONS_DASHBOARD_ID)\nAzure Advisor recommendations for security, cost, performance, and availability"
+    },
+    "12": {
+      "title": "Recommendations - Total",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Recommendation\"\n| parse content, \"JSON:parsed\"\n| summarize totalCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Total",
+          "recordField": "totalCount",
+          "prefixIcon": ""
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "13": {
+      "title": "Recommendations - High Impact",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Recommendation\"\n| parse content, \"JSON:parsed\"\n| filter parsed[properties][recommendationImpact] == \"High\"\n| summarize highCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "High Impact",
+          "recordField": "highCount",
+          "prefixIcon": ""
+        },
+        "thresholds": [
+          {
+            "field": "highCount",
+            "isEnabled": true,
+            "rules": [
+              { "comparator": ">=", "value": 1, "color": "#f5d30a" },
+              { "comparator": ">=", "value": 3, "color": "#dc172a" }
+            ]
+          }
+        ]
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "14": {
+      "title": "Recommendations - Security",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Recommendation\"\n| parse content, \"JSON:parsed\"\n| filter parsed[properties][recommendationCategory] == \"Security\"\n| summarize securityCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Security",
+          "recordField": "securityCount",
+          "prefixIcon": ""
+        },
+        "thresholds": [
+          {
+            "field": "securityCount",
+            "isEnabled": true,
+            "rules": [
+              { "comparator": ">=", "value": 1, "color": "#f5d30a" },
+              { "comparator": ">=", "value": 3, "color": "#dc172a" }
+            ]
+          }
+        ]
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "15": {
+      "title": "Recommendations - By Category",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Recommendation\"\n| parse content, \"JSON:parsed\"\n| summarize count = count(), by: { category = parsed[properties][recommendationCategory] }",
+      "visualization": "pieChart",
+      "visualizationSettings": {
+        "chartSettings": {
+          "categoryOverrides": {},
+          "circleChartSettings": { "valueType": "relative", "groupingThresholdType": "relative" }
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "16": {
+      "title": "",
+      "type": "markdown",
+      "content": "### [Security >>](#dashboard;id=SECURITY_DASHBOARD_ID)\nSecurity alerts, compromised entities, and remediation guidance"
+    },
+    "17": {
+      "title": "Security - Total Alerts",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Security\"\n| parse content, \"JSON:parsed\"\n| summarize totalCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Total Alerts",
+          "recordField": "totalCount",
+          "prefixIcon": ""
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "18": {
+      "title": "Security - High Severity",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Security\"\n| parse content, \"JSON:parsed\"\n| filter parsed[properties][severity] == \"High\"\n| summarize highCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "High Severity",
+          "recordField": "highCount",
+          "prefixIcon": ""
+        },
+        "thresholds": [
+          {
+            "field": "highCount",
+            "isEnabled": true,
+            "rules": [
+              { "comparator": ">=", "value": 1, "color": "#f5d30a" },
+              { "comparator": ">=", "value": 3, "color": "#dc172a" }
+            ]
+          }
+        ]
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "19": {
+      "title": "Security - Compromised Entities",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Security\"\n| parse content, \"JSON:parsed\"\n| summarize entityCount = countDistinct(parsed[properties][compromisedEntity])",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Compromised Entities",
+          "recordField": "entityCount",
+          "prefixIcon": ""
+        },
+        "thresholds": [
+          {
+            "field": "entityCount",
+            "isEnabled": true,
+            "rules": [
+              { "comparator": ">=", "value": 1, "color": "#f5d30a" },
+              { "comparator": ">=", "value": 3, "color": "#dc172a" }
+            ]
+          }
+        ]
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "20": {
+      "title": "Security - By Severity",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Security\"\n| parse content, \"JSON:parsed\"\n| summarize count = count(), by: { severity = parsed[properties][severity] }",
+      "visualization": "pieChart",
+      "visualizationSettings": {
+        "chartSettings": {
+          "categoryOverrides": {
+            "High": { "color": "#dc172a" },
+            "Medium": { "color": "#f5d30a" },
+            "Low": { "color": "#54c27e" }
+          },
+          "circleChartSettings": { "valueType": "relative", "groupingThresholdType": "relative" }
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "21": {
+      "title": "Combined Health Timeline",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ServiceHealth\" or log.source == \"ResourceHealth\" or log.source == \"Recommendation\" or log.source == \"Security\"\n| summarize count = count(), by: { timeframe = bin(timestamp, 1h), source = log.source }",
+      "visualization": "lineChart",
+      "visualizationSettings": {
+        "chartSettings": {
+          "leftYAxisSettings": { "label": "Count" },
+          "fieldMapping": { "leftAxisValues": ["count"], "timestamp": "timeframe" },
+          "gapPolicy": "connect",
+          "categoryOverrides": {
+            "ServiceHealth": { "color": "#dc172a" },
+            "ResourceHealth": { "color": "#f5d30a" },
+            "Recommendation": { "color": "#1496ff" },
+            "Security": { "color": "#7c38a1" }
+          }
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "22": {
+      "title": "",
+      "type": "markdown",
+      "content": "---\n**Setup Instructions:** After importing all dashboards, replace the placeholder IDs in the markdown links above:\n- `SERVICE_HEALTH_DASHBOARD_ID` - ID from Service Health dashboard\n- `RESOURCE_HEALTH_DASHBOARD_ID` - ID from Resource Health dashboard\n- `RECOMMENDATIONS_DASHBOARD_ID` - ID from Recommendations dashboard\n- `SECURITY_DASHBOARD_ID` - ID from Security dashboard\n\nFind the dashboard ID in the URL when viewing each dashboard: `.../#dashboard;id=<THIS_VALUE>`"
+    }
+  },
+  "layouts": {
+    "0":  { "x": 0,  "y": 0, "w": 24, "h": 2 },
+
+    "1":  { "x": 0,  "y": 2, "w": 6,  "h": 2 },
+    "2":  { "x": 6,  "y": 2, "w": 5,  "h": 3 },
+    "3":  { "x": 11, "y": 2, "w": 5,  "h": 3 },
+    "4":  { "x": 16, "y": 2, "w": 4,  "h": 3 },
+    "5":  { "x": 20, "y": 2, "w": 4,  "h": 3 },
+
+    "6":  { "x": 0,  "y": 5, "w": 6,  "h": 2 },
+    "7":  { "x": 6,  "y": 5, "w": 5,  "h": 3 },
+    "8":  { "x": 11, "y": 5, "w": 5,  "h": 3 },
+    "9":  { "x": 16, "y": 5, "w": 4,  "h": 3 },
+    "10": { "x": 20, "y": 5, "w": 4,  "h": 3 },
+
+    "11": { "x": 0,  "y": 8,  "w": 6,  "h": 2 },
+    "12": { "x": 6,  "y": 8,  "w": 5,  "h": 3 },
+    "13": { "x": 11, "y": 8,  "w": 5,  "h": 3 },
+    "14": { "x": 16, "y": 8,  "w": 4,  "h": 3 },
+    "15": { "x": 20, "y": 8,  "w": 4,  "h": 4 },
+
+    "16": { "x": 0,  "y": 11, "w": 6,  "h": 2 },
+    "17": { "x": 6,  "y": 11, "w": 5,  "h": 3 },
+    "18": { "x": 11, "y": 11, "w": 5,  "h": 3 },
+    "19": { "x": 16, "y": 11, "w": 4,  "h": 3 },
+    "20": { "x": 20, "y": 11, "w": 4,  "h": 4 },
+
+    "21": { "x": 0,  "y": 15, "w": 24, "h": 5 },
+    "22": { "x": 0,  "y": 20, "w": 24, "h": 3 }
+  },
+  "settings": {},
+  "importedWithCode": false
+}

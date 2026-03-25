@@ -1,0 +1,342 @@
+{
+  "version": 21,
+  "variables": [
+    {
+      "version": 2,
+      "key": "Status",
+      "type": "query",
+      "visible": true,
+      "editable": true,
+      "input": "fetch logs\n| filter log.source == \"ServiceHealth\"\n| parse content, \"JSON:parsed\"\n| summarize count(), by: { status = parsed[resultType] }\n| fields status",
+      "multiple": true
+    },
+    {
+      "version": 2,
+      "key": "EventType",
+      "type": "query",
+      "visible": true,
+      "editable": true,
+      "input": "fetch logs\n| filter log.source == \"ServiceHealth\"\n| parse content, \"JSON:parsed\"\n| summarize count(), by: { eventType = parsed[properties][incidentType] }\n| fields eventType",
+      "multiple": true
+    },
+    {
+      "version": 2,
+      "key": "Region",
+      "type": "query",
+      "visible": true,
+      "editable": true,
+      "input": "fetch logs\n| filter log.source == \"ServiceHealth\"\n| parse content, \"JSON:parsed\"\n| summarize count(), by: { region = parsed[properties][region] }\n| fields region",
+      "multiple": true
+    },
+    {
+      "version": 2,
+      "key": "Service",
+      "type": "query",
+      "visible": true,
+      "editable": true,
+      "input": "fetch logs\n| filter log.source == \"ServiceHealth\"\n| parse content, \"JSON:parsed\"\n| summarize count(), by: { service = parsed[properties][service] }\n| fields service",
+      "multiple": true
+    },
+    {
+      "version": 2,
+      "key": "ImpactType",
+      "type": "query",
+      "visible": true,
+      "editable": true,
+      "input": "fetch logs\n| filter log.source == \"ServiceHealth\"\n| parse content, \"JSON:parsed\"\n| summarize count(), by: { impactType = parsed[properties][impactType] }\n| fields impactType",
+      "multiple": true
+    }
+  ],
+  "annotations": [],
+  "tiles": {
+    "0": {
+      "title": "Active Issues",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ServiceHealth\"\n| parse content, \"JSON:parsed\"\n| filter parsed[resultType] == \"Active\"\n| summarize activeCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Active Issues",
+          "recordField": "activeCount",
+          "prefixIcon": ""
+        },
+        "thresholds": [
+          {
+            "field": "activeCount",
+            "isEnabled": true,
+            "rules": [
+              { "comparator": ">=", "value": 1, "color": "#f5d30a" },
+              { "comparator": ">=", "value": 3, "color": "#dc172a" }
+            ]
+          }
+        ]
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "1": {
+      "title": "Events by Status",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ServiceHealth\"\n| parse content, \"JSON:parsed\"\n| fieldsAdd eventType = parsed[properties][incidentType], region = parsed[properties][region], service = parsed[properties][service], impactType = parsed[properties][impactType]\n| filter in(eventType, array($EventType))\n| filter in(region, array($Region))\n| filter in(service, array($Service))\n| filter in(impactType, array($ImpactType))\n| summarize count = count(), by: { status = parsed[resultType] }",
+      "visualization": "pieChart",
+      "visualizationSettings": {
+        "chartSettings": {
+          "categoryOverrides": {
+            "Active": { "color": "#dc172a" },
+            "Resolved": { "color": "#54c27e" }
+          },
+          "circleChartSettings": { "valueType": "relative", "groupingThresholdType": "relative" }
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "2": {
+      "title": "Events by Incident Type",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ServiceHealth\"\n| parse content, \"JSON:parsed\"\n| fieldsAdd status = parsed[resultType], region = parsed[properties][region], service = parsed[properties][service], impactType = parsed[properties][impactType]\n| filter in(status, array($Status))\n| filter in(region, array($Region))\n| filter in(service, array($Service))\n| filter in(impactType, array($ImpactType))\n| summarize count = count(), by: { eventType = parsed[properties][incidentType] }",
+      "visualization": "pieChart",
+      "visualizationSettings": {
+        "chartSettings": {
+          "categoryOverrides": {
+            "Incident": { "color": "#dc172a" },
+            "Maintenance": { "color": "#f5d30a" },
+            "Informational": { "color": "#1496ff" },
+            "ActionRequired": { "color": "#fd8232" },
+            "Security": { "color": "#7c38a1" }
+          },
+          "circleChartSettings": { "valueType": "relative", "groupingThresholdType": "relative" }
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "3": {
+      "title": "Service Health Summary",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ServiceHealth\"\n| parse content, \"JSON:parsed\"\n| fieldsAdd\n    title = parsed[properties][title],\n    service = parsed[properties][service],\n    region = parsed[properties][region],\n    eventType = parsed[properties][incidentType],\n    status = parsed[resultType],\n    stage = parsed[properties][stage],\n    trackingId = parsed[properties][trackingId],\n    impactType = parsed[properties][impactType],\n    impactStart = parsed[properties][impactStartTime],\n    impactEnd = parsed[properties][impactMitigationTime],\n    isHIR = parsed[properties][isHIR],\n    eventTime = parsed[time]\n| fieldsRemove parsed, content\n| filter in(status, array($Status))\n| filter in(eventType, array($EventType))\n| filter in(region, array($Region))\n| filter in(service, array($Service))\n| filter in(impactType, array($ImpactType))\n| fields title, service, region, eventType, status, stage, trackingId, impactType, impactStart, impactEnd, isHIR, eventTime\n| sort eventTime desc",
+      "visualization": "table",
+      "visualizationSettings": {
+        "table": {
+          "hiddenColumns": ["timestamp", "eventTime", "dt.auth.origin", "dt.openpipeline.source", "dt.openpipeline.pipelines", "azure.resource.id", "azure.resource.type", "azure.resource.name", "azure.subscription", "cloud.provider", "cloud.region", "loglevel", "event.type", "status"],
+          "columnWidths": {
+            "title": 350,
+            "service": 200
+          }
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "4": {
+      "title": "Events by Service",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ServiceHealth\"\n| parse content, \"JSON:parsed\"\n| fieldsAdd status = parsed[resultType], eventType = parsed[properties][incidentType], region = parsed[properties][region], impactType = parsed[properties][impactType]\n| filter in(status, array($Status))\n| filter in(eventType, array($EventType))\n| filter in(region, array($Region))\n| filter in(impactType, array($ImpactType))\n| summarize count = count(), by: { service = parsed[properties][service] }\n| sort count desc",
+      "visualization": "pieChart",
+      "visualizationSettings": {
+        "chartSettings": {
+          "categoryOverrides": {},
+          "circleChartSettings": { "valueType": "relative", "groupingThresholdType": "relative" }
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "5": {
+      "title": "Events by Region",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ServiceHealth\"\n| parse content, \"JSON:parsed\"\n| fieldsAdd status = parsed[resultType], eventType = parsed[properties][incidentType], service = parsed[properties][service], impactType = parsed[properties][impactType]\n| filter in(status, array($Status))\n| filter in(eventType, array($EventType))\n| filter in(service, array($Service))\n| filter in(impactType, array($ImpactType))\n| summarize count = count(), by: { region = parsed[properties][region] }\n| sort count desc\n| limit 10",
+      "visualization": "pieChart",
+      "visualizationSettings": {
+        "chartSettings": {
+          "categoryOverrides": {},
+          "circleChartSettings": { "valueType": "relative", "groupingThresholdType": "relative" }
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "6": {
+      "title": "Timeline of Events",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ServiceHealth\"\n| parse content, \"JSON:parsed\"\n| fieldsAdd status = parsed[resultType], region = parsed[properties][region], service = parsed[properties][service], impactType = parsed[properties][impactType]\n| filter in(status, array($Status))\n| filter in(region, array($Region))\n| filter in(service, array($Service))\n| filter in(impactType, array($ImpactType))\n| summarize count = count(), by: { timeframe = bin(timestamp, 1h), eventType = parsed[properties][incidentType] }",
+      "visualization": "lineChart",
+      "visualizationSettings": {
+        "chartSettings": {
+          "leftYAxisSettings": { "label": "Count" },
+          "fieldMapping": { "leftAxisValues": ["count"], "timestamp": "timeframe" },
+          "gapPolicy": "connect",
+          "categoryOverrides": {
+            "Incident": { "color": "#dc172a" },
+            "Maintenance": { "color": "#f5d30a" },
+            "Informational": { "color": "#1496ff" },
+            "ActionRequired": { "color": "#fd8232" },
+            "Security": { "color": "#7c38a1" }
+          }
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "7": {
+      "title": "Total Events",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ServiceHealth\"\n| parse content, \"JSON:parsed\"\n| summarize totalCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Total Events",
+          "recordField": "totalCount",
+          "prefixIcon": ""
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "8": {
+      "title": "Resolved",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ServiceHealth\"\n| parse content, \"JSON:parsed\"\n| filter parsed[resultType] == \"Resolved\"\n| summarize resolvedCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Resolved",
+          "recordField": "resolvedCount",
+          "prefixIcon": ""
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "9": {
+      "title": "Incidents",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ServiceHealth\"\n| parse content, \"JSON:parsed\"\n| filter parsed[properties][incidentType] == \"Incident\"\n| summarize incidentCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Incidents",
+          "recordField": "incidentCount",
+          "prefixIcon": ""
+        },
+        "thresholds": [
+          {
+            "field": "incidentCount",
+            "isEnabled": true,
+            "rules": [
+              { "comparator": ">=", "value": 1, "color": "#f5d30a" },
+              { "comparator": ">=", "value": 3, "color": "#dc172a" }
+            ]
+          }
+        ]
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "10": {
+      "title": "Maintenance",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ServiceHealth\"\n| parse content, \"JSON:parsed\"\n| filter parsed[properties][incidentType] == \"Maintenance\"\n| summarize maintenanceCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Maintenance",
+          "recordField": "maintenanceCount",
+          "prefixIcon": ""
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "11": {
+      "title": "Event Details",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ServiceHealth\"\n| parse content, \"JSON:parsed\"\n| fieldsAdd\n    title = parsed[properties][title],\n    trackingId = parsed[properties][trackingId],\n    service = parsed[properties][service],\n    region = parsed[properties][region],\n    status = parsed[resultType],\n    eventType = parsed[properties][incidentType],\n    stage = parsed[properties][stage],\n    impactType = parsed[properties][impactType],\n    impactStart = parsed[properties][impactStartTime],\n    impactEnd = parsed[properties][impactMitigationTime],\n    isHIR = parsed[properties][isHIR],\n    sensitive = parsed[properties][sensitive],\n    maintenanceType = parsed[properties][maintenanceType],\n    impactedServices = parsed[properties][impactedServices],\n    communication = parsed[properties][communication]\n| fieldsRemove parsed, content\n| filter in(status, array($Status))\n| filter in(eventType, array($EventType))\n| filter in(region, array($Region))\n| filter in(service, array($Service))\n| filter in(impactType, array($ImpactType))\n| fields title, trackingId, service, region, status, eventType, stage, impactType, impactStart, impactEnd, isHIR, sensitive, maintenanceType, communication\n| sort timestamp desc",
+      "visualization": "table",
+      "visualizationSettings": {
+        "table": {
+          "columnWidths": {
+            "title": 350,
+            "communication": 500,
+            "service": 200
+          }
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "12": {
+      "title": "High Impact (HIR)",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ServiceHealth\"\n| parse content, \"JSON:parsed\"\n| filter parsed[properties][isHIR] == true\n| summarize hirCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "High Impact",
+          "recordField": "hirCount",
+          "prefixIcon": ""
+        },
+        "thresholds": [
+          {
+            "field": "hirCount",
+            "isEnabled": true,
+            "rules": [
+              { "comparator": ">=", "value": 1, "color": "#f5d30a" },
+              { "comparator": ">=", "value": 3, "color": "#dc172a" }
+            ]
+          }
+        ]
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "13": {
+      "title": "Sensitive Events",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ServiceHealth\"\n| parse content, \"JSON:parsed\"\n| filter parsed[properties][sensitive] == true\n| summarize sensitiveCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Sensitive",
+          "recordField": "sensitiveCount",
+          "prefixIcon": ""
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "14": {
+      "title": "Events by Impact Type",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ServiceHealth\"\n| parse content, \"JSON:parsed\"\n| fieldsAdd status = parsed[resultType], eventType = parsed[properties][incidentType], region = parsed[properties][region], service = parsed[properties][service]\n| filter in(status, array($Status))\n| filter in(eventType, array($EventType))\n| filter in(region, array($Region))\n| filter in(service, array($Service))\n| summarize count = count(), by: { impactType = parsed[properties][impactType] }\n| sort count desc",
+      "visualization": "pieChart",
+      "visualizationSettings": {
+        "chartSettings": {
+          "categoryOverrides": {},
+          "circleChartSettings": { "valueType": "relative", "groupingThresholdType": "relative" }
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    }
+  },
+  "layouts": {
+    "7": { "x": 0, "y": 0, "w": 4, "h": 3 },
+    "0": { "x": 4, "y": 0, "w": 4, "h": 3 },
+    "8": { "x": 8, "y": 0, "w": 4, "h": 3 },
+    "9": { "x": 12, "y": 0, "w": 3, "h": 3 },
+    "10": { "x": 15, "y": 0, "w": 3, "h": 3 },
+    "12": { "x": 18, "y": 0, "w": 3, "h": 3 },
+    "13": { "x": 21, "y": 0, "w": 3, "h": 3 },
+    "1": { "x": 0, "y": 3, "w": 6, "h": 4 },
+    "2": { "x": 6, "y": 3, "w": 6, "h": 4 },
+    "4": { "x": 12, "y": 3, "w": 6, "h": 4 },
+    "14": { "x": 18, "y": 3, "w": 6, "h": 4 },
+    "3": { "x": 0, "y": 7, "w": 24, "h": 5 },
+    "11": { "x": 0, "y": 12, "w": 24, "h": 5 },
+    "5": { "x": 0, "y": 17, "w": 12, "h": 4 },
+    "6": { "x": 12, "y": 17, "w": 12, "h": 4 }
+  },
+  "settings": {},
+  "importedWithCode": false
+}

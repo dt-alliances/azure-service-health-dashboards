@@ -1,0 +1,344 @@
+{
+  "version": 21,
+  "variables": [
+    {
+      "version": 2,
+      "key": "Status",
+      "type": "query",
+      "visible": true,
+      "editable": true,
+      "input": "fetch logs\n| filter log.source == \"Security\"\n| parse content, \"JSON:parsed\"\n| summarize count(), by: { status = parsed[resultType] }\n| fields status",
+      "multiple": true
+    },
+    {
+      "version": 2,
+      "key": "Severity",
+      "type": "query",
+      "visible": true,
+      "editable": true,
+      "input": "fetch logs\n| filter log.source == \"Security\"\n| parse content, \"JSON:parsed\"\n| summarize count(), by: { severity = parsed[properties][severity] }\n| fields severity",
+      "multiple": true
+    },
+    {
+      "version": 2,
+      "key": "AttackedResourceType",
+      "type": "query",
+      "visible": true,
+      "editable": true,
+      "input": "fetch logs\n| filter log.source == \"Security\"\n| parse content, \"JSON:parsed\"\n| summarize count(), by: { attackedResourceType = parsed[properties][attackedResourceType] }\n| fields attackedResourceType",
+      "multiple": true
+    },
+    {
+      "version": 2,
+      "key": "Level",
+      "type": "query",
+      "visible": true,
+      "editable": true,
+      "input": "fetch logs\n| filter log.source == \"Security\"\n| parse content, \"JSON:parsed\"\n| summarize count(), by: { level = parsed[level] }\n| fields level",
+      "multiple": true
+    },
+    {
+      "version": 2,
+      "key": "Location",
+      "type": "query",
+      "visible": true,
+      "editable": true,
+      "input": "fetch logs\n| filter log.source == \"Security\"\n| parse content, \"JSON:parsed\"\n| summarize count(), by: { location = parsed[location] }\n| fields location",
+      "multiple": true
+    }
+  ],
+  "annotations": [],
+  "tiles": {
+    "0": {
+      "title": "Total Alerts",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Security\"\n| parse content, \"JSON:parsed\"\n| summarize totalCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Total Alerts",
+          "recordField": "totalCount",
+          "prefixIcon": ""
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "1": {
+      "title": "Active Alerts",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Security\"\n| parse content, \"JSON:parsed\"\n| filter parsed[resultType] == \"Active\"\n| summarize activeCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Active Alerts",
+          "recordField": "activeCount",
+          "prefixIcon": ""
+        },
+        "thresholds": [
+          {
+            "field": "activeCount",
+            "isEnabled": true,
+            "rules": [
+              { "comparator": ">=", "value": 1, "color": "#f5d30a" },
+              { "comparator": ">=", "value": 5, "color": "#dc172a" }
+            ]
+          }
+        ]
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "2": {
+      "title": "High Severity",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Security\"\n| parse content, \"JSON:parsed\"\n| filter parsed[properties][severity] == \"High\"\n| summarize highCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "High Severity",
+          "recordField": "highCount",
+          "prefixIcon": ""
+        },
+        "thresholds": [
+          {
+            "field": "highCount",
+            "isEnabled": true,
+            "rules": [
+              { "comparator": ">=", "value": 1, "color": "#f5d30a" },
+              { "comparator": ">=", "value": 3, "color": "#dc172a" }
+            ]
+          }
+        ]
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "3": {
+      "title": "Medium Severity",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Security\"\n| parse content, \"JSON:parsed\"\n| filter parsed[properties][severity] == \"Medium\"\n| summarize mediumCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Medium Severity",
+          "recordField": "mediumCount",
+          "prefixIcon": ""
+        },
+        "thresholds": [
+          {
+            "field": "mediumCount",
+            "isEnabled": true,
+            "rules": [
+              { "comparator": ">=", "value": 1, "color": "#f5d30a" },
+              { "comparator": ">=", "value": 5, "color": "#dc172a" }
+            ]
+          }
+        ]
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "4": {
+      "title": "Low Severity",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Security\"\n| parse content, \"JSON:parsed\"\n| filter parsed[properties][severity] == \"Low\"\n| summarize lowCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Low Severity",
+          "recordField": "lowCount",
+          "prefixIcon": ""
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "5": {
+      "title": "Virtual Machine Attacks",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Security\"\n| parse content, \"JSON:parsed\"\n| filter parsed[properties][attackedResourceType] == \"Virtual Machine\"\n| summarize vmCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Virtual Machine Attacks",
+          "recordField": "vmCount",
+          "prefixIcon": ""
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "6": {
+      "title": "Unique Compromised Entities",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Security\"\n| parse content, \"JSON:parsed\"\n| summarize entityCount = countDistinct(parsed[properties][compromisedEntity])",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Unique Compromised Entities",
+          "recordField": "entityCount",
+          "prefixIcon": ""
+        },
+        "thresholds": [
+          {
+            "field": "entityCount",
+            "isEnabled": true,
+            "rules": [
+              { "comparator": ">=", "value": 1, "color": "#f5d30a" },
+              { "comparator": ">=", "value": 3, "color": "#dc172a" }
+            ]
+          }
+        ]
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "7": {
+      "title": "By Severity",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Security\"\n| parse content, \"JSON:parsed\"\n| fieldsAdd status = parsed[resultType], attackedResourceType = parsed[properties][attackedResourceType], level = parsed[level], location = parsed[location]\n| filter in(status, array($Status))\n| filter in(attackedResourceType, array($AttackedResourceType))\n| filter in(level, array($Level))\n| filter in(location, array($Location))\n| summarize count = count(), by: { severity = parsed[properties][severity] }",
+      "visualization": "pieChart",
+      "visualizationSettings": {
+        "chartSettings": {
+          "categoryOverrides": {
+            "High": { "color": "#dc172a" },
+            "Medium": { "color": "#f5d30a" },
+            "Low": { "color": "#54c27e" }
+          },
+          "circleChartSettings": { "valueType": "relative", "groupingThresholdType": "relative" }
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "8": {
+      "title": "By Attacked Resource Type",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Security\"\n| parse content, \"JSON:parsed\"\n| fieldsAdd status = parsed[resultType], severity = parsed[properties][severity], level = parsed[level], location = parsed[location]\n| filter in(status, array($Status))\n| filter in(severity, array($Severity))\n| filter in(level, array($Level))\n| filter in(location, array($Location))\n| summarize count = count(), by: { attackedResourceType = parsed[properties][attackedResourceType] }",
+      "visualization": "pieChart",
+      "visualizationSettings": {
+        "chartSettings": {
+          "categoryOverrides": {},
+          "circleChartSettings": { "valueType": "relative", "groupingThresholdType": "relative" }
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "9": {
+      "title": "By Status",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Security\"\n| parse content, \"JSON:parsed\"\n| fieldsAdd severity = parsed[properties][severity], attackedResourceType = parsed[properties][attackedResourceType], level = parsed[level], location = parsed[location]\n| filter in(severity, array($Severity))\n| filter in(attackedResourceType, array($AttackedResourceType))\n| filter in(level, array($Level))\n| filter in(location, array($Location))\n| summarize count = count(), by: { status = parsed[resultType] }",
+      "visualization": "pieChart",
+      "visualizationSettings": {
+        "chartSettings": {
+          "categoryOverrides": {
+            "Active": { "color": "#dc172a" },
+            "Resolved": { "color": "#54c27e" }
+          },
+          "circleChartSettings": { "valueType": "relative", "groupingThresholdType": "relative" }
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "10": {
+      "title": "By Compromised Entity",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Security\"\n| parse content, \"JSON:parsed\"\n| fieldsAdd status = parsed[resultType], severity = parsed[properties][severity], attackedResourceType = parsed[properties][attackedResourceType], level = parsed[level]\n| filter in(status, array($Status))\n| filter in(severity, array($Severity))\n| filter in(attackedResourceType, array($AttackedResourceType))\n| filter in(level, array($Level))\n| summarize count = count(), by: { compromisedEntity = parsed[properties][compromisedEntity] }",
+      "visualization": "pieChart",
+      "visualizationSettings": {
+        "chartSettings": {
+          "categoryOverrides": {},
+          "circleChartSettings": { "valueType": "relative", "groupingThresholdType": "relative" }
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "11": {
+      "title": "Security Alerts Summary",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Security\"\n| parse content, \"JSON:parsed\"\n| fieldsAdd\n    eventName = parsed[properties][eventName],\n    severity = parsed[properties][severity],\n    compromisedEntity = parsed[properties][compromisedEntity],\n    attackedResourceType = parsed[properties][attackedResourceType],\n    status = parsed[resultType],\n    level = parsed[level],\n    location = parsed[location],\n    eventTime = parsed[time]\n| fieldsRemove parsed, content\n| filter in(status, array($Status))\n| filter in(severity, array($Severity))\n| filter in(attackedResourceType, array($AttackedResourceType))\n| filter in(level, array($Level))\n| filter in(location, array($Location))\n| sort eventTime desc\n| fields eventName, severity, compromisedEntity, attackedResourceType, status, level, location, eventTime",
+      "visualization": "table",
+      "visualizationSettings": {
+        "table": {
+          "columnWidths": {}
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "12": {
+      "title": "Alert Details",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Security\"\n| parse content, \"JSON:parsed\"\n| fieldsAdd\n    eventName = parsed[properties][eventName],\n    severity = parsed[properties][severity],\n    compromisedEntity = parsed[properties][compromisedEntity],\n    attackedResourceType = parsed[properties][attackedResourceType],\n    status = parsed[resultType],\n    level = parsed[level],\n    location = parsed[location],\n    resultDescription = parsed[resultDescription],\n    remediationSteps = parsed[properties][remediationSteps],\n    intent = parsed[properties][intent]\n| fieldsRemove parsed, content\n| filter in(status, array($Status))\n| filter in(severity, array($Severity))\n| filter in(attackedResourceType, array($AttackedResourceType))\n| filter in(level, array($Level))\n| filter in(location, array($Location))\n| sort timestamp desc\n| fields eventName, severity, compromisedEntity, attackedResourceType, status, resultDescription, remediationSteps, intent",
+      "visualization": "table",
+      "visualizationSettings": {
+        "table": {
+          "columnWidths": {
+            "eventName": 300,
+            "resultDescription": 400,
+            "remediationSteps": 400
+          }
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "13": {
+      "title": "Timeline of Security Alerts",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Security\"\n| parse content, \"JSON:parsed\"\n| fieldsAdd status = parsed[resultType], attackedResourceType = parsed[properties][attackedResourceType], level = parsed[level], location = parsed[location]\n| filter in(status, array($Status))\n| filter in(attackedResourceType, array($AttackedResourceType))\n| filter in(level, array($Level))\n| filter in(location, array($Location))\n| summarize count = count(), by: { timeframe = bin(timestamp, 1h), severity = parsed[properties][severity] }",
+      "visualization": "lineChart",
+      "visualizationSettings": {
+        "chartSettings": {
+          "leftYAxisSettings": { "label": "Count" },
+          "fieldMapping": { "leftAxisValues": ["count"], "timestamp": "timeframe" },
+          "gapPolicy": "connect",
+          "categoryOverrides": {
+            "High": { "color": "#dc172a" },
+            "Medium": { "color": "#f5d30a" },
+            "Low": { "color": "#54c27e" }
+          }
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "14": {
+      "title": "By Location",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Security\"\n| parse content, \"JSON:parsed\"\n| fieldsAdd status = parsed[resultType], severity = parsed[properties][severity], attackedResourceType = parsed[properties][attackedResourceType], level = parsed[level]\n| filter in(status, array($Status))\n| filter in(severity, array($Severity))\n| filter in(attackedResourceType, array($AttackedResourceType))\n| filter in(level, array($Level))\n| summarize count = count(), by: { location = parsed[location] }",
+      "visualization": "pieChart",
+      "visualizationSettings": {
+        "chartSettings": {
+          "categoryOverrides": {},
+          "circleChartSettings": { "valueType": "relative", "groupingThresholdType": "relative" }
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    }
+  },
+  "layouts": {
+    "0":  { "x": 0,  "y": 0, "w": 4, "h": 3 },
+    "1":  { "x": 4,  "y": 0, "w": 4, "h": 3 },
+    "2":  { "x": 8,  "y": 0, "w": 3, "h": 3 },
+    "3":  { "x": 11, "y": 0, "w": 3, "h": 3 },
+    "4":  { "x": 14, "y": 0, "w": 3, "h": 3 },
+    "5":  { "x": 17, "y": 0, "w": 3, "h": 3 },
+    "6":  { "x": 20, "y": 0, "w": 4, "h": 3 },
+    "7":  { "x": 0,  "y": 3, "w": 6, "h": 4 },
+    "8":  { "x": 6,  "y": 3, "w": 6, "h": 4 },
+    "9":  { "x": 12, "y": 3, "w": 6, "h": 4 },
+    "10": { "x": 18, "y": 3, "w": 6, "h": 4 },
+    "11": { "x": 0,  "y": 7, "w": 24, "h": 5 },
+    "12": { "x": 0,  "y": 12, "w": 24, "h": 5 },
+    "13": { "x": 12, "y": 17, "w": 12, "h": 4 },
+    "14": { "x": 0,  "y": 17, "w": 12, "h": 4 }
+  },
+  "settings": {},
+  "importedWithCode": false
+}

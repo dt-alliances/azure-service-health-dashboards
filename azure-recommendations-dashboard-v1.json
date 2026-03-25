@@ -1,0 +1,330 @@
+{
+  "version": 21,
+  "variables": [
+    {
+      "version": 2,
+      "key": "Status",
+      "type": "query",
+      "visible": true,
+      "editable": true,
+      "input": "fetch logs\n| filter log.source == \"Recommendation\"\n| parse content, \"JSON:parsed\"\n| summarize count(), by: { status = parsed[resultType] }\n| fields status",
+      "multiple": true
+    },
+    {
+      "version": 2,
+      "key": "Category",
+      "type": "query",
+      "visible": true,
+      "editable": true,
+      "input": "fetch logs\n| filter log.source == \"Recommendation\"\n| parse content, \"JSON:parsed\"\n| summarize count(), by: { category = parsed[properties][recommendationCategory] }\n| fields category",
+      "multiple": true
+    },
+    {
+      "version": 2,
+      "key": "Impact",
+      "type": "query",
+      "visible": true,
+      "editable": true,
+      "input": "fetch logs\n| filter log.source == \"Recommendation\"\n| parse content, \"JSON:parsed\"\n| summarize count(), by: { impact = parsed[properties][recommendationImpact] }\n| fields impact",
+      "multiple": true
+    },
+    {
+      "version": 2,
+      "key": "Level",
+      "type": "query",
+      "visible": true,
+      "editable": true,
+      "input": "fetch logs\n| filter log.source == \"Recommendation\"\n| parse content, \"JSON:parsed\"\n| summarize count(), by: { level = parsed[level] }\n| fields level",
+      "multiple": true
+    },
+    {
+      "version": 2,
+      "key": "Location",
+      "type": "query",
+      "visible": true,
+      "editable": true,
+      "input": "fetch logs\n| filter log.source == \"Recommendation\"\n| parse content, \"JSON:parsed\"\n| summarize count(), by: { location = parsed[location] }\n| fields location",
+      "multiple": true
+    }
+  ],
+  "annotations": [],
+  "tiles": {
+    "0": {
+      "title": "Total Recommendations",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Recommendation\"\n| parse content, \"JSON:parsed\"\n| summarize totalCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Total Recommendations",
+          "recordField": "totalCount",
+          "prefixIcon": ""
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "1": {
+      "title": "Active",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Recommendation\"\n| parse content, \"JSON:parsed\"\n| filter parsed[resultType] == \"Active\"\n| summarize activeCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Active",
+          "recordField": "activeCount",
+          "prefixIcon": ""
+        },
+        "thresholds": [
+          {
+            "field": "activeCount",
+            "isEnabled": true,
+            "rules": [
+              { "comparator": ">=", "value": 1, "color": "#f5d30a" },
+              { "comparator": ">=", "value": 5, "color": "#dc172a" }
+            ]
+          }
+        ]
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "2": {
+      "title": "High Impact",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Recommendation\"\n| parse content, \"JSON:parsed\"\n| filter parsed[properties][recommendationImpact] == \"High\"\n| summarize highCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "High Impact",
+          "recordField": "highCount",
+          "prefixIcon": ""
+        },
+        "thresholds": [
+          {
+            "field": "highCount",
+            "isEnabled": true,
+            "rules": [
+              { "comparator": ">=", "value": 1, "color": "#f5d30a" },
+              { "comparator": ">=", "value": 3, "color": "#dc172a" }
+            ]
+          }
+        ]
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "3": {
+      "title": "Security",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Recommendation\"\n| parse content, \"JSON:parsed\"\n| filter parsed[properties][recommendationCategory] == \"Security\"\n| summarize securityCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Security",
+          "recordField": "securityCount",
+          "prefixIcon": ""
+        },
+        "thresholds": [
+          {
+            "field": "securityCount",
+            "isEnabled": true,
+            "rules": [
+              { "comparator": ">=", "value": 1, "color": "#f5d30a" },
+              { "comparator": ">=", "value": 3, "color": "#dc172a" }
+            ]
+          }
+        ]
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "4": {
+      "title": "Cost",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Recommendation\"\n| parse content, \"JSON:parsed\"\n| filter parsed[properties][recommendationCategory] == \"Cost\"\n| summarize costCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Cost",
+          "recordField": "costCount",
+          "prefixIcon": ""
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "5": {
+      "title": "Performance",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Recommendation\"\n| parse content, \"JSON:parsed\"\n| filter parsed[properties][recommendationCategory] == \"Performance\"\n| summarize perfCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Performance",
+          "recordField": "perfCount",
+          "prefixIcon": ""
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "6": {
+      "title": "High Availability",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Recommendation\"\n| parse content, \"JSON:parsed\"\n| filter parsed[properties][recommendationCategory] == \"HighAvailability\"\n| summarize haCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "High Availability",
+          "recordField": "haCount",
+          "prefixIcon": ""
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "7": {
+      "title": "By Category",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Recommendation\"\n| parse content, \"JSON:parsed\"\n| fieldsAdd status = parsed[resultType], impact = parsed[properties][recommendationImpact], level = parsed[level], location = parsed[location]\n| filter in(status, array($Status))\n| filter in(impact, array($Impact))\n| filter in(level, array($Level))\n| filter in(location, array($Location))\n| summarize count = count(), by: { category = parsed[properties][recommendationCategory] }",
+      "visualization": "pieChart",
+      "visualizationSettings": {
+        "chartSettings": {
+          "categoryOverrides": {},
+          "circleChartSettings": { "valueType": "relative", "groupingThresholdType": "relative" }
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "8": {
+      "title": "By Impact",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Recommendation\"\n| parse content, \"JSON:parsed\"\n| fieldsAdd status = parsed[resultType], category = parsed[properties][recommendationCategory], level = parsed[level], location = parsed[location]\n| filter in(status, array($Status))\n| filter in(category, array($Category))\n| filter in(level, array($Level))\n| filter in(location, array($Location))\n| summarize count = count(), by: { impact = parsed[properties][recommendationImpact] }",
+      "visualization": "pieChart",
+      "visualizationSettings": {
+        "chartSettings": {
+          "categoryOverrides": {
+            "High": { "color": "#dc172a" },
+            "Medium": { "color": "#f5d30a" },
+            "Low": { "color": "#54c27e" }
+          },
+          "circleChartSettings": { "valueType": "relative", "groupingThresholdType": "relative" }
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "9": {
+      "title": "By Status",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Recommendation\"\n| parse content, \"JSON:parsed\"\n| fieldsAdd category = parsed[properties][recommendationCategory], impact = parsed[properties][recommendationImpact], level = parsed[level], location = parsed[location]\n| filter in(category, array($Category))\n| filter in(impact, array($Impact))\n| filter in(level, array($Level))\n| filter in(location, array($Location))\n| summarize count = count(), by: { status = parsed[resultType] }",
+      "visualization": "pieChart",
+      "visualizationSettings": {
+        "chartSettings": {
+          "categoryOverrides": {
+            "Active": { "color": "#dc172a" },
+            "Resolved": { "color": "#54c27e" }
+          },
+          "circleChartSettings": { "valueType": "relative", "groupingThresholdType": "relative" }
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "10": {
+      "title": "By Level",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Recommendation\"\n| parse content, \"JSON:parsed\"\n| fieldsAdd status = parsed[resultType], category = parsed[properties][recommendationCategory], impact = parsed[properties][recommendationImpact], location = parsed[location]\n| filter in(status, array($Status))\n| filter in(category, array($Category))\n| filter in(impact, array($Impact))\n| filter in(location, array($Location))\n| summarize count = count(), by: { level = parsed[level] }",
+      "visualization": "pieChart",
+      "visualizationSettings": {
+        "chartSettings": {
+          "categoryOverrides": {},
+          "circleChartSettings": { "valueType": "relative", "groupingThresholdType": "relative" }
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "11": {
+      "title": "Recommendations Summary",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Recommendation\"\n| parse content, \"JSON:parsed\"\n| fieldsAdd\n    recommendationName = parsed[properties][recommendationName],\n    recommendationCategory = parsed[properties][recommendationCategory],\n    recommendationImpact = parsed[properties][recommendationImpact],\n    status = parsed[resultType],\n    level = parsed[level],\n    location = parsed[location],\n    resultSignature = parsed[resultSignature],\n    eventTime = parsed[time]\n| fieldsRemove parsed, content\n| filter in(status, array($Status))\n| filter in(recommendationCategory, array($Category))\n| filter in(recommendationImpact, array($Impact))\n| filter in(level, array($Level))\n| filter in(location, array($Location))\n| sort eventTime desc\n| fields recommendationName, recommendationCategory, recommendationImpact, status, level, location, resultSignature, eventTime",
+      "visualization": "table",
+      "visualizationSettings": {
+        "table": {
+          "columnWidths": {}
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "12": {
+      "title": "Recommendation Details",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Recommendation\"\n| parse content, \"JSON:parsed\"\n| fieldsAdd\n    recommendationName = parsed[properties][recommendationName],\n    recommendationCategory = parsed[properties][recommendationCategory],\n    recommendationImpact = parsed[properties][recommendationImpact],\n    status = parsed[resultType],\n    level = parsed[level],\n    resultDescription = parsed[resultDescription],\n    recommendationResourceLink = parsed[properties][recommendationResourceLink],\n    recommendationType = parsed[properties][recommendationType]\n| fieldsRemove parsed, content\n| filter in(status, array($Status))\n| filter in(recommendationCategory, array($Category))\n| filter in(recommendationImpact, array($Impact))\n| filter in(level, array($Level))\n| sort timestamp desc\n| fields recommendationName, recommendationCategory, recommendationImpact, status, level, resultDescription, recommendationResourceLink, recommendationType",
+      "visualization": "table",
+      "visualizationSettings": {
+        "table": {
+          "columnWidths": {
+            "recommendationName": 350,
+            "resultDescription": 400,
+            "recommendationResourceLink": 300
+          }
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "13": {
+      "title": "Timeline of Recommendations",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Recommendation\"\n| parse content, \"JSON:parsed\"\n| fieldsAdd status = parsed[resultType], impact = parsed[properties][recommendationImpact], level = parsed[level], location = parsed[location]\n| filter in(status, array($Status))\n| filter in(impact, array($Impact))\n| filter in(level, array($Level))\n| filter in(location, array($Location))\n| summarize count = count(), by: { timeframe = bin(timestamp, 1h), category = parsed[properties][recommendationCategory] }",
+      "visualization": "lineChart",
+      "visualizationSettings": {
+        "chartSettings": {
+          "leftYAxisSettings": { "label": "Count" },
+          "fieldMapping": { "leftAxisValues": ["count"], "timestamp": "timeframe" },
+          "gapPolicy": "connect",
+          "categoryOverrides": {}
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "14": {
+      "title": "By Location",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"Recommendation\"\n| parse content, \"JSON:parsed\"\n| fieldsAdd status = parsed[resultType], category = parsed[properties][recommendationCategory], impact = parsed[properties][recommendationImpact], level = parsed[level]\n| filter in(status, array($Status))\n| filter in(category, array($Category))\n| filter in(impact, array($Impact))\n| filter in(level, array($Level))\n| summarize count = count(), by: { location = parsed[location] }",
+      "visualization": "pieChart",
+      "visualizationSettings": {
+        "chartSettings": {
+          "categoryOverrides": {},
+          "circleChartSettings": { "valueType": "relative", "groupingThresholdType": "relative" }
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    }
+  },
+  "layouts": {
+    "0":  { "x": 0,  "y": 0, "w": 4, "h": 3 },
+    "1":  { "x": 4,  "y": 0, "w": 4, "h": 3 },
+    "2":  { "x": 8,  "y": 0, "w": 3, "h": 3 },
+    "3":  { "x": 11, "y": 0, "w": 3, "h": 3 },
+    "4":  { "x": 14, "y": 0, "w": 3, "h": 3 },
+    "5":  { "x": 17, "y": 0, "w": 3, "h": 3 },
+    "6":  { "x": 20, "y": 0, "w": 4, "h": 3 },
+    "7":  { "x": 0,  "y": 3, "w": 6, "h": 4 },
+    "8":  { "x": 6,  "y": 3, "w": 6, "h": 4 },
+    "9":  { "x": 12, "y": 3, "w": 6, "h": 4 },
+    "10": { "x": 18, "y": 3, "w": 6, "h": 4 },
+    "11": { "x": 0,  "y": 7, "w": 24, "h": 5 },
+    "12": { "x": 0,  "y": 12, "w": 24, "h": 5 },
+    "13": { "x": 12, "y": 17, "w": 12, "h": 4 },
+    "14": { "x": 0,  "y": 17, "w": 12, "h": 4 }
+  },
+  "settings": {},
+  "importedWithCode": false
+}

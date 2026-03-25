@@ -1,0 +1,361 @@
+{
+  "version": 21,
+  "variables": [
+    {
+      "version": 2,
+      "key": "Status",
+      "type": "query",
+      "visible": true,
+      "editable": true,
+      "input": "fetch logs\n| filter log.source == \"ResourceHealth\"\n| parse content, \"JSON:parsed\"\n| summarize count(), by: { status = parsed[resultType] }\n| fields status",
+      "multiple": true
+    },
+    {
+      "version": 2,
+      "key": "HealthStatus",
+      "type": "query",
+      "visible": true,
+      "editable": true,
+      "input": "fetch logs\n| filter log.source == \"ResourceHealth\"\n| parse content, \"JSON:parsed\"\n| summarize count(), by: { healthStatus = parsed[properties][currentHealthStatus] }\n| fields healthStatus",
+      "multiple": true
+    },
+    {
+      "version": 2,
+      "key": "Cause",
+      "type": "query",
+      "visible": true,
+      "editable": true,
+      "input": "fetch logs\n| filter log.source == \"ResourceHealth\"\n| parse content, \"JSON:parsed\"\n| summarize count(), by: { cause = parsed[properties][cause] }\n| fields cause",
+      "multiple": true
+    },
+    {
+      "version": 2,
+      "key": "EventType",
+      "type": "query",
+      "visible": true,
+      "editable": true,
+      "input": "fetch logs\n| filter log.source == \"ResourceHealth\"\n| parse content, \"JSON:parsed\"\n| summarize count(), by: { eventType = parsed[properties][type] }\n| fields eventType",
+      "multiple": true
+    },
+    {
+      "version": 2,
+      "key": "Level",
+      "type": "query",
+      "visible": true,
+      "editable": true,
+      "input": "fetch logs\n| filter log.source == \"ResourceHealth\"\n| parse content, \"JSON:parsed\"\n| summarize count(), by: { level = parsed[level] }\n| fields level",
+      "multiple": true
+    }
+  ],
+  "annotations": [],
+  "tiles": {
+    "0": {
+      "title": "Active Issues",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ResourceHealth\"\n| parse content, \"JSON:parsed\"\n| filter parsed[resultType] == \"Active\"\n| summarize activeCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Active Issues",
+          "recordField": "activeCount",
+          "prefixIcon": ""
+        },
+        "thresholds": [
+          {
+            "field": "activeCount",
+            "isEnabled": true,
+            "rules": [
+              { "comparator": ">=", "value": 1, "color": "#f5d30a" },
+              { "comparator": ">=", "value": 3, "color": "#dc172a" }
+            ]
+          }
+        ]
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "1": {
+      "title": "Events by Status",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ResourceHealth\"\n| parse content, \"JSON:parsed\"\n| fieldsAdd healthStatus = parsed[properties][currentHealthStatus], cause = parsed[properties][cause], eventType = parsed[properties][type], level = parsed[level]\n| filter in(healthStatus, array($HealthStatus))\n| filter in(cause, array($Cause))\n| filter in(eventType, array($EventType))\n| filter in(level, array($Level))\n| summarize count = count(), by: { status = parsed[resultType] }",
+      "visualization": "pieChart",
+      "visualizationSettings": {
+        "chartSettings": {
+          "categoryOverrides": {
+            "Active": { "color": "#dc172a" },
+            "Resolved": { "color": "#54c27e" },
+            "Updated": { "color": "#1496ff" }
+          },
+          "circleChartSettings": { "valueType": "relative", "groupingThresholdType": "relative" }
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "2": {
+      "title": "Events by Health Status",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ResourceHealth\"\n| parse content, \"JSON:parsed\"\n| fieldsAdd status = parsed[resultType], cause = parsed[properties][cause], eventType = parsed[properties][type], level = parsed[level]\n| filter in(status, array($Status))\n| filter in(cause, array($Cause))\n| filter in(eventType, array($EventType))\n| filter in(level, array($Level))\n| summarize count = count(), by: { healthStatus = parsed[properties][currentHealthStatus] }",
+      "visualization": "pieChart",
+      "visualizationSettings": {
+        "chartSettings": {
+          "categoryOverrides": {
+            "Available": { "color": "#54c27e" },
+            "Unavailable": { "color": "#dc172a" },
+            "Degraded": { "color": "#f5d30a" },
+            "Unknown": { "color": "#898989" }
+          },
+          "circleChartSettings": { "valueType": "relative", "groupingThresholdType": "relative" }
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "3": {
+      "title": "Resource Health Summary",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ResourceHealth\"\n| parse content, \"JSON:parsed\"\n| fieldsAdd\n    title = parsed[properties][title],\n    resourceId = parsed[resourceId],\n    status = parsed[resultType],\n    currentHealth = parsed[properties][currentHealthStatus],\n    previousHealth = parsed[properties][previousHealthStatus],\n    eventType = parsed[properties][type],\n    cause = parsed[properties][cause],\n    details = parsed[properties][details],\n    level = parsed[level],\n    correlationId = parsed[correlationId],\n    eventTime = parsed[time]\n| fieldsRemove parsed, content\n| filter in(status, array($Status))\n| filter in(currentHealth, array($HealthStatus))\n| filter in(cause, array($Cause))\n| filter in(eventType, array($EventType))\n| filter in(level, array($Level))\n| sort eventTime desc\n| fields title, resourceId, status, currentHealth, previousHealth, eventType, cause, details, level, correlationId, eventTime",
+      "visualization": "table",
+      "visualizationSettings": {
+        "table": {
+          "hiddenColumns": ["timestamp", "correlationId", "eventTime", "dt.auth.origin", "dt.openpipeline.source", "dt.openpipeline.pipelines", "azure.resource.id", "azure.resource.type", "azure.resource.name", "azure.subscription", "cloud.provider", "cloud.region", "loglevel", "event.type", "status"],
+          "columnWidths": {
+            "resourceId": 500,
+            "title": 300,
+            "details": 400
+          }
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "4": {
+      "title": "Events by Cause",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ResourceHealth\"\n| parse content, \"JSON:parsed\"\n| fieldsAdd status = parsed[resultType], healthStatus = parsed[properties][currentHealthStatus], eventType = parsed[properties][type], level = parsed[level]\n| filter in(status, array($Status))\n| filter in(healthStatus, array($HealthStatus))\n| filter in(eventType, array($EventType))\n| filter in(level, array($Level))\n| summarize count = count(), by: { cause = parsed[properties][cause] }\n| sort count desc",
+      "visualization": "pieChart",
+      "visualizationSettings": {
+        "chartSettings": {
+          "categoryOverrides": {
+            "PlatformInitiated": { "color": "#dc172a" },
+            "UserInitiated": { "color": "#1496ff" },
+            "Unknown": { "color": "#898989" }
+          },
+          "circleChartSettings": { "valueType": "relative", "groupingThresholdType": "relative" }
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "5": {
+      "title": "Events by Event Type",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ResourceHealth\"\n| parse content, \"JSON:parsed\"\n| fieldsAdd status = parsed[resultType], healthStatus = parsed[properties][currentHealthStatus], cause = parsed[properties][cause], level = parsed[level]\n| filter in(status, array($Status))\n| filter in(healthStatus, array($HealthStatus))\n| filter in(cause, array($Cause))\n| filter in(level, array($Level))\n| summarize count = count(), by: { eventType = parsed[properties][type] }\n| sort count desc",
+      "visualization": "pieChart",
+      "visualizationSettings": {
+        "chartSettings": {
+          "categoryOverrides": {
+            "Downtime": { "color": "#dc172a" },
+            "Unknown": { "color": "#898989" }
+          },
+          "circleChartSettings": { "valueType": "relative", "groupingThresholdType": "relative" }
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "6": {
+      "title": "Timeline of Events",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ResourceHealth\"\n| parse content, \"JSON:parsed\"\n| fieldsAdd status = parsed[resultType], healthStatus = parsed[properties][currentHealthStatus], cause = parsed[properties][cause], eventType = parsed[properties][type], level = parsed[level]\n| filter in(status, array($Status))\n| filter in(healthStatus, array($HealthStatus))\n| filter in(cause, array($Cause))\n| filter in(eventType, array($EventType))\n| filter in(level, array($Level))\n| summarize count = count(), by: { timeframe = bin(timestamp, 1h), resultType = parsed[resultType] }",
+      "visualization": "lineChart",
+      "visualizationSettings": {
+        "chartSettings": {
+          "leftYAxisSettings": { "label": "Count" },
+          "fieldMapping": { "leftAxisValues": ["count"], "timestamp": "timeframe" },
+          "gapPolicy": "connect",
+          "categoryOverrides": {
+            "Active": { "color": "#dc172a" },
+            "Resolved": { "color": "#54c27e" },
+            "Updated": { "color": "#1496ff" }
+          }
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "7": {
+      "title": "Total Events",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ResourceHealth\"\n| parse content, \"JSON:parsed\"\n| summarize totalCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Total Events",
+          "recordField": "totalCount",
+          "prefixIcon": ""
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "8": {
+      "title": "Resolved",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ResourceHealth\"\n| parse content, \"JSON:parsed\"\n| filter parsed[resultType] == \"Resolved\"\n| summarize resolvedCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Resolved",
+          "recordField": "resolvedCount",
+          "prefixIcon": ""
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "9": {
+      "title": "Available Resources",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ResourceHealth\"\n| parse content, \"JSON:parsed\"\n| filter parsed[properties][currentHealthStatus] == \"Available\"\n| summarize availableCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Available",
+          "recordField": "availableCount",
+          "prefixIcon": ""
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "10": {
+      "title": "Unavailable Resources",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ResourceHealth\"\n| parse content, \"JSON:parsed\"\n| filter parsed[properties][currentHealthStatus] == \"Unavailable\"\n| summarize unavailableCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Unavailable",
+          "recordField": "unavailableCount",
+          "prefixIcon": ""
+        },
+        "thresholds": [
+          {
+            "field": "unavailableCount",
+            "isEnabled": true,
+            "rules": [
+              { "comparator": ">=", "value": 1, "color": "#f5d30a" },
+              { "comparator": ">=", "value": 5, "color": "#dc172a" }
+            ]
+          }
+        ]
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "11": {
+      "title": "Event Details",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ResourceHealth\"\n| parse content, \"JSON:parsed\"\n| fieldsAdd\n    title = parsed[properties][title],\n    resourceId = parsed[resourceId],\n    status = parsed[resultType],\n    currentHealth = parsed[properties][currentHealthStatus],\n    previousHealth = parsed[properties][previousHealthStatus],\n    eventType = parsed[properties][type],\n    cause = parsed[properties][cause],\n    details = parsed[properties][details],\n    level = parsed[level]\n| fieldsRemove parsed, content\n| filter in(status, array($Status))\n| filter in(currentHealth, array($HealthStatus))\n| filter in(cause, array($Cause))\n| filter in(eventType, array($EventType))\n| filter in(level, array($Level))\n| sort eventTime desc\n| fields title, resourceId, status, currentHealth, previousHealth, eventType, cause, details, level",
+      "visualization": "table",
+      "visualizationSettings": {
+        "table": {
+          "columnWidths": {
+            "resourceId": 500,
+            "details": 400,
+            "title": 250
+          }
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "12": {
+      "title": "Downtime Events",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ResourceHealth\"\n| parse content, \"JSON:parsed\"\n| filter parsed[properties][type] == \"Downtime\"\n| summarize downtimeCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Downtime",
+          "recordField": "downtimeCount",
+          "prefixIcon": ""
+        },
+        "thresholds": [
+          {
+            "field": "downtimeCount",
+            "isEnabled": true,
+            "rules": [
+              { "comparator": ">=", "value": 1, "color": "#f5d30a" },
+              { "comparator": ">=", "value": 10, "color": "#dc172a" }
+            ]
+          }
+        ]
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "13": {
+      "title": "Platform Initiated",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ResourceHealth\"\n| parse content, \"JSON:parsed\"\n| filter parsed[properties][cause] == \"PlatformInitiated\"\n| summarize platformCount = count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "label": "Platform Initiated",
+          "recordField": "platformCount",
+          "prefixIcon": ""
+        },
+        "thresholds": [
+          {
+            "field": "platformCount",
+            "isEnabled": true,
+            "rules": [
+              { "comparator": ">=", "value": 1, "color": "#f5d30a" },
+              { "comparator": ">=", "value": 5, "color": "#dc172a" }
+            ]
+          }
+        ]
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    },
+    "14": {
+      "title": "Events by Level",
+      "type": "data",
+      "query": "fetch logs\n| filter log.source == \"ResourceHealth\"\n| parse content, \"JSON:parsed\"\n| fieldsAdd status = parsed[resultType], healthStatus = parsed[properties][currentHealthStatus], cause = parsed[properties][cause], eventType = parsed[properties][type]\n| filter in(status, array($Status))\n| filter in(healthStatus, array($HealthStatus))\n| filter in(cause, array($Cause))\n| filter in(eventType, array($EventType))\n| summarize count = count(), by: { level = parsed[level] }\n| sort count desc",
+      "visualization": "pieChart",
+      "visualizationSettings": {
+        "chartSettings": {
+          "categoryOverrides": {
+            "Critical": { "color": "#dc172a" },
+            "Informational": { "color": "#1496ff" }
+          },
+          "circleChartSettings": { "valueType": "relative", "groupingThresholdType": "relative" }
+        }
+      },
+      "querySettings": { "maxResultRecords": 1000, "defaultScanLimitGbytes": 500, "maxResultMegaBytes": 100, "defaultSamplingRatio": 10, "enableSampling": false },
+      "davis": { "enabled": false, "davisVisualization": { "isAvailable": true } }
+    }
+  },
+  "layouts": {
+    "7": { "x": 0, "y": 0, "w": 4, "h": 3 },
+    "0": { "x": 4, "y": 0, "w": 4, "h": 3 },
+    "8": { "x": 8, "y": 0, "w": 4, "h": 3 },
+    "9": { "x": 12, "y": 0, "w": 3, "h": 3 },
+    "10": { "x": 15, "y": 0, "w": 3, "h": 3 },
+    "12": { "x": 18, "y": 0, "w": 3, "h": 3 },
+    "13": { "x": 21, "y": 0, "w": 3, "h": 3 },
+    "1": { "x": 0, "y": 3, "w": 6, "h": 4 },
+    "2": { "x": 6, "y": 3, "w": 6, "h": 4 },
+    "4": { "x": 12, "y": 3, "w": 6, "h": 4 },
+    "14": { "x": 18, "y": 3, "w": 6, "h": 4 },
+    "3": { "x": 0, "y": 7, "w": 24, "h": 5 },
+    "11": { "x": 0, "y": 12, "w": 24, "h": 5 },
+    "5": { "x": 0, "y": 17, "w": 12, "h": 4 },
+    "6": { "x": 12, "y": 17, "w": 12, "h": 4 }
+  },
+  "settings": {},
+  "importedWithCode": false
+}
